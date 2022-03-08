@@ -23,13 +23,13 @@ ll_sum <- function(masks, theta, mm, dat){
 }
 
 
-#' Approximate the fisher information matrix using finite differencing
+#' Numerically approximate the fisher information matrix using finite difference method
 #'
 #' @param masks A masks object from masks().
 #' @param theta A theta vector.
 #' @param mm A model matrix from causl::mm().
 #' @param dat Input data to calculate log-likelihood on.
-#' #' @param dat Input data to calculate loglikelihood on.
+#' @param delta The infinitesimal delta used in finite difference method.
 #' @return The sum of log-likelihood.
 #' @examples
 #'
