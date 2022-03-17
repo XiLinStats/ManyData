@@ -87,7 +87,7 @@ run_MH_MCMC <- function(startval, iterations, dat_obs, dat_exp, eta){
   msks_obs <- masks(forms_obs[-2],family = list(1,1,1),wh_obs)
 
   ## get model matrix
-  mm_obs <- causl:::model.matrix(full_form_obs$formula, data = dat_obs)
+  mm_obs <- model.matrix(full_form_obs$formula, data = dat_obs)
 
   theta_obs <- causl:::theta(pars = pars_obs, formulas = forms_obs[-2], full_form_obs, kwd = "cop")
 
@@ -100,7 +100,7 @@ run_MH_MCMC <- function(startval, iterations, dat_obs, dat_exp, eta){
   msks_exp <- masks(forms_exp[-2],family = list(1,1,1),wh_exp)
 
   ## get model matrix
-  mm_exp <- causl:::model.matrix(full_form_exp$formula, data = dat_exp)
+  mm_exp <- model.matrix(full_form_exp$formula, data = dat_exp)
 
   theta_exp <- causl:::theta(pars = pars_exp, formulas = forms_exp[-2], full_form_exp, kwd = "cop")
 
