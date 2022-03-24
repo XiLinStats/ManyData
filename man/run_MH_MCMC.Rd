@@ -25,4 +25,6 @@ Simulate posterior samples using MCMC
 }
 \examples{
 theta_sim_eta05 <- run_MH_MCMC(c(1,0.5), 1000, dat_obs = dat_obs, dat_exp = dat_exp, eta = 0.5)
+
+
 }

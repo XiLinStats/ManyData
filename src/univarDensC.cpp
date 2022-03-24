@@ -91,3 +91,4 @@ List univarDensC(NumericVector x, NumericVector eta, double phi , String link = 
 }
 
 
+
