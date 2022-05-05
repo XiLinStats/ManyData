@@ -4,7 +4,19 @@
 \alias{run_MH_MCMC}
 \title{Simulate posterior samples using MCMC}
 \usage{
-run_MH_MCMC(startval, iterations, dat_obs, dat_exp, eta)
+run_MH_MCMC(
+  startval,
+  iterations,
+  dat_obs,
+  dat_exp,
+  msks_obs,
+  theta_obs,
+  msks_exp,
+  theta_exp,
+  p_mu,
+  p_sig,
+  eta
+)
 }
 \arguments{
 \item{startval}{Initial values..}
@@ -25,6 +37,4 @@ Simulate posterior samples using MCMC
 }
 \examples{
 theta_sim_eta05 <- run_MH_MCMC(c(1,0.5), 1000, dat_obs = dat_obs, dat_exp = dat_exp, eta = 0.5)
-
-
 }

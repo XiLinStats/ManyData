@@ -1,5 +1,11 @@
 // [[Rcpp::depends("RcppArmadillo")]]
+// [[Rcpp::depends(RcppClock)]]
 #include <RcppArmadillo.h>
+#include <RcppClock.h>
+
+using namespace Rcpp;
+
+
 //' @useDynLib ManyData
 // static double const log2pi = std::log(2.0 * M_PI);
 
@@ -59,21 +65,27 @@ arma::vec dGcop(arma::mat const &x,
 }
 
 // C++ function to compute density at points of Gaussian copula
+//' @export
 // [[Rcpp::export]]
 arma::vec dGcop_sig(arma::mat const &x,
                     arma::cube const &sigma,
                     bool const logd = false) {
+
+  Rcpp::Clock clock;
+
   using arma::uword;
   uword const n = x.n_rows;
   arma::vec out(n);
   // double const constants = -(double)d/2.0 * log2pi;
 
   for (uword i = 0; i < n; i++) {
+
     arma::vec eig = arma::eig_sym(sigma.slice(i));
     if (any(eig < 0)) {
       out(i) = NA_REAL;
       continue;
     }
+
     arma::mat const rooti = arma::inv(trimatu(arma::chol(sigma.slice(i))));
     double const rootisum = arma::sum(log(rooti.diag()));
     arma::rowvec z;
@@ -81,12 +93,71 @@ arma::vec dGcop_sig(arma::mat const &x,
     // Rprintf("%3e\n", rootisum);
 
     z = x.row(i);
+
     inplace_tri_mat_mult(z, rooti);
+
     // Rprintf("%3e %3e\n", z(0), z(1));
+
+
     out(i) = rootisum - 0.5 * (arma::dot(z, z) - arma::dot(x.row(i), x.row(i)));
+
   }
 
   if (logd)
     return out;
   return exp(out);
+
 }
+
+
+// arma::vec dGcop_sig_clock(arma::mat const &x,
+//                     arma::cube const &sigma,
+//                     bool const logd = false) {
+//
+//   Rcpp::Clock clock;
+//
+//   using arma::uword;
+//   uword const n = x.n_rows;
+//   arma::vec out(n);
+//   // double const constants = -(double)d/2.0 * log2pi;
+//
+//   for (uword i = 0; i < n; i++) {
+//
+//     clock.tick("eig_sym");
+//     arma::vec eig = arma::eig_sym(sigma.slice(i));
+//     if (any(eig < 0)) {
+//       out(i) = NA_REAL;
+//       continue;
+//     }
+//
+//     clock.tock("eig_sym");
+//
+//     clock.tick("chol");
+//     arma::mat const rooti = arma::inv(trimatu(arma::chol(sigma.slice(i))));
+//     clock.tock("chol");
+//
+//     clock.tick("sumlog");
+//     double const rootisum = arma::sum(log(rooti.diag()));
+//     clock.tock("sumlog");
+//
+//     arma::rowvec z;
+//
+//     // Rprintf("%3e\n", rootisum);
+//
+//     z = x.row(i);
+//     clock.tick("inplace_tri_mat_mult");
+//     inplace_tri_mat_mult(z, rooti);
+//     clock.tock("inplace_tri_mat_mult");
+//     // Rprintf("%3e %3e\n", z(0), z(1));
+//
+//     clock.tick("out_calc");
+//     out(i) = rootisum - 0.5 * (arma::dot(z, z) - arma::dot(x.row(i), x.row(i)));
+//     clock.tock("out_calc");
+//   }
+//
+//   if (logd)
+//     return out;
+//   return exp(out);
+//
+//   clock.stop("clock");
+// }

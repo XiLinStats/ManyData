@@ -12,6 +12,7 @@ dGcop <- function(x, sigma, logd = FALSE) {
     .Call('_ManyData_dGcop', PACKAGE = 'ManyData', x, sigma, logd)
 }
 
+#' @export
 dGcop_sig <- function(x, sigma, logd = FALSE) {
     .Call('_ManyData_dGcop_sig', PACKAGE = 'ManyData', x, sigma, logd)
 }
@@ -37,20 +38,13 @@ llC <- function(dat, mm, beta, phi, inCop) {
     .Call('_ManyData_llC', PACKAGE = 'ManyData', dat, mm, beta, phi, inCop)
 }
 
-qnormC2 <- function(x) {
-    .Call('_ManyData_qnormC2', PACKAGE = 'ManyData', x)
+#' @export
+postll_C <- function(current_val, inCop, dat_exp, theta_exp, mm_exp, mask_exp, dat_obs, theta_obs, mm_obs, mask_obs, p_mu, p_sigma, eta) {
+    .Call('_ManyData_postll_C', PACKAGE = 'ManyData', current_val, inCop, dat_exp, theta_exp, mm_exp, mask_exp, dat_obs, theta_obs, mm_obs, mask_obs, p_mu, p_sigma, eta)
 }
 
-qnormC3 <- function(x) {
-    .Call('_ManyData_qnormC3', PACKAGE = 'ManyData', x)
-}
-
-qnormC4 <- function(x) {
-    .Call('_ManyData_qnormC4', PACKAGE = 'ManyData', x)
-}
-
-createSig2 <- function(ncv, n, par) {
-    .Call('_ManyData_createSig2', PACKAGE = 'ManyData', ncv, n, par)
+MCMCloop_C <- function(n_iter, init_val, sigma, inCop, dat_exp, theta_exp, mm_exp, mask_exp, dat_obs, theta_obs, mm_obs, mask_obs, p_mu, p_sigma, eta) {
+    .Call('_ManyData_MCMCloop_C', PACKAGE = 'ManyData', n_iter, init_val, sigma, inCop, dat_exp, theta_exp, mm_exp, mask_exp, dat_obs, theta_obs, mm_obs, mask_obs, p_mu, p_sigma, eta)
 }
 
 #' @useDynLib ManyData

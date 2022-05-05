@@ -22,3 +22,10 @@ library(ggplot2)
 library(loo)
 library(coda)
 library(gridExtra)
+library(coda)
+
+# File locations ----------------------------------------------------------
+
+folder_dir<-"D:/xlin/R_code/WIP-SMI/Scenarios/Baseline/GPC"
+data_dir <- file.path(folder_dir,"/data")
+results_dir <- file.path(folder_dir,"/results")
