@@ -3,7 +3,7 @@
 export(dGcop_sig)
 export(llC)
 export(masks)
-export(postll_C)
+export(postll_C_all)
 export(run_MH_MCMC)
 export(univarDensC)
 import(Rcpp)

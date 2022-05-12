@@ -33,10 +33,10 @@ registerDoSNOW(my.cluster)
 # Loop --------------------------------------------------------------------
 
 # Number of bootstrap samples
-n_boot <- 500
+n_boot <- 11
 
 # List of eta
-eta_list <- c(seq(0,0.8,0.1),1)
+eta_list <- c(seq(0,0.8,0.4),1)
 # Function to evaluate
 
 set.seed(111)
@@ -61,54 +61,67 @@ theta_exp <- causl:::theta(pars = pars_exp, formulas = forms_exp[-2], full_form_
 func <- function(){
 
   data_exp_b <- causalSamp(250,formulas = forms_exp,pars = pars_exp, family = list(1,c(5,5),1,1))
-  data_obs_b <- data_obs <- causalSamp(2500,formulas = forms_obs,pars = pars_obs, family = list(1,c(5,5),1,1))
+  data_obs_b <- causalSamp(2500,formulas = forms_obs,pars = pars_obs, family = list(1,c(5,5),1,1))
 
 
-  fit_exp <- fitCausal(dat = data_exp_b,
+  # use the MLE fit in the experimental data to initialise the MCMC chain
+  fit_exp<-fitCausal(dat = data_exp_b,
                      formulas = forms_exp[-2],
-                     family = c(1,1,1))
+                     family = c(1,1,1)
+  )
 
-  MLE_exp<- fit_exp$pars$Y$beta
-  MLE_exp[c(2,3)] <- fit_exp$pars$Y$beta[c(3,2)]
+  MLE_exp <- c(fit_exp$pars$Z$beta,fit_exp$pars$Y$beta[1],fit_exp$pars$Y$beta[3],fit_exp$pars$Y$beta[2],fit_exp$pars$Y$beta[4],
+               fit_exp$pars$cop$beta[1], fit_exp$pars$cop$beta[3],fit_exp$pars$cop$beta[2],fit_exp$pars$cop$beta[4],
+               fit_exp$pars$Z$phi,fit_exp$pars$Y$phi
 
+  )
 
-  result<-matrix(0,1,7)
+  result<-matrix(0,1,9)
 
   for (eta in eta_list){
 
-  theta_sim_raw <- run_MH_MCMC(MLE_exp, 5000, data_obs_b, data_exp_b,
-                               msks_obs,theta_obs,
-                               msks_exp,theta_exp,MLE_exp, 0.2*diag(4),eta)
+    theta_sim_raw <- run_MH_MCMC(MLE_exp, 10000, data_obs_b, data_exp_b,
+                                 msks_obs,theta_obs,
+                                 msks_exp,theta_exp,MLE_exp, 0.2*diag(12),eta)
 
-  theta_sim_rtnd <- theta_sim_raw[-seq(1:50),]
+    theta_sim_rtnd <- theta_sim_raw[-seq(1:500),]
+    AR <- mean(c(length(unique(theta_sim_rtnd[,3])),
+               length(unique(theta_sim_rtnd[,4])),
+               length(unique(theta_sim_rtnd[,5])),
+               length(unique(theta_sim_rtnd[,6]))))/nrow(theta_sim_rtnd)
 
 
-  lst <- list()
-  for (i in 1:nrow(theta_sim_rtnd)) {
+    theta_sim_rtnd <- theta_sim_rtnd[seq(1,nrow(theta_sim_rtnd),5),]
+    ESS <- mean(effectiveSize(theta_sim_raw)[c(3,4,5,6)])
 
-    theta2 <- copy(theta_exp)
-    theta2[c(3,4,5,6)] <- theta_sim_rtnd[i,]
-    msks2 <- copy(msks_exp)
-    np <- sum(msks2$beta_m > 0)
-    msks2$beta_m[msks_exp$beta_m > 0] <- theta2[seq_len(np)]
-    msks2$phi_m[msks_exp$phi_m > 0] <- theta2[-seq_len(np)]
-    mm_exp <- model.matrix(full_form_exp$formula, data = data_exp_b)
-    ll_i <- ManyData:::llC(data_exp_b[,c("Z","Y")],mm_exp,msks2$beta_m, phi = msks2$phi_m,inCop = c(1,2))
-    lst[[i]] <- as.vector(ll_i)
-    # print(i)
 
-  }
+    lst <- list()
+    for (i in 1:nrow(theta_sim_rtnd)) {
 
-  mtrx <- do.call(rbind, lst)
-  waic_eta <- waic(mtrx)
+      # theta2 <- copy(theta_exp)
+      theta2 <- theta_sim_rtnd[i,]
+      msks2 <- copy(msks_exp)
+      np <- sum(msks2$beta_m > 0)
+      msks2$beta_m[msks_exp$beta_m > 0] <- theta2[seq_len(np)]
+      msks2$phi_m[msks_exp$phi_m > 0] <- theta2[-seq_len(np)]
+      mm_exp <- model.matrix(full_form_exp$formula, data = data_exp_b)
+      ll_i <- ManyData:::llC(data_exp_b[,c("Z","Y")],mm_exp,msks2$beta_m, phi = msks2$phi_m,inCop = c(1,2))
+      lst[[i]] <- as.vector(ll_i)
+      # print(i)
 
-  result<-rbind(result,c(eta,colMeans(theta_sim_rtnd),mean(data_exp_b$C1),waic_eta$estimates[1]))
+    }
+
+    mtrx <- do.call(rbind, lst)
+    waic_eta <- waic(mtrx)
+
+
+    # EDIT THIS
+    result<-rbind(result,c(eta,AR,ESS, colMeans(theta_sim_rtnd[,c(3,4,5,6)]),mean(data_exp_b$C1),waic_eta$estimates[1]))
 
   }
   return(result[-1,])
 
 }
-
 
 start <- Sys.time()
 
@@ -137,7 +150,7 @@ results <- foreach(
 
 
 results <- as.data.table(results)
-colnames(results) <- c("eta","beta_0","beta_2","beta_1","beta_3", "meanC1_exp","ELPD_waic")
+colnames(results) <- c("eta","AR","ESS","beta_0","beta_2","beta_1","beta_3", "meanC1_exp","ELPD_waic")
 
 
 Sys.time() -start
@@ -146,21 +159,20 @@ saveRDS(results,file.path(results_dir,"results_500iter.rds"))
 
 beta_1_true <- 0.8
 beta_3_true <- 0.3
-ATE_true <- beta_1_true + beta_3_true * expit(0)
+# ATE_true <- beta_1_true + beta_3_true * expit(0)
 
 results[,ATE:= beta_1 + beta_3 * meanC1_exp]
 
 summ<-results[,.(.N,beta_1 = mean(beta_1),
-              beta_1sd = sd(beta_1),
-              beta_3 = mean(beta_3),
-              beta_3sd = sd(beta_3),
-              ATE = mean(ATE),
-              ATE_sd = sd(ATE),
-              elpd = mean(ELPD_waic),
-              RMSE_beta1 = sqrt(mean((beta_1 - beta_1_true)^2)),
-
-              RMSE_beta3 = sqrt(mean((beta_3 - beta_3_true)^2)),
-              RMSE_ATE = sqrt(mean((ATE - ATE_true)^2))),eta]
+                 beta_1sd = sd(beta_1),
+                 beta_3 = mean(beta_3),
+                 beta_3sd = sd(beta_3),
+                 ATE = mean(ATE),
+                 ATE_sd = sd(ATE),
+                 elpd = mean(ELPD_waic),
+                 RMSE_beta1 = sqrt(mean((beta_1 - beta_1_true)^2)),
+                 RMSE_beta3 = sqrt(mean((beta_3 - beta_3_true)^2)),
+                 RMSE_ATE = sqrt(mean((ATE - (beta_1_true + beta_3_true *meanC1_exp ))^2))) ,eta]
 
 
 

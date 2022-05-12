@@ -39,8 +39,8 @@ llC <- function(dat, mm, beta, phi, inCop) {
 }
 
 #' @export
-postll_C <- function(current_val, inCop, dat_exp, theta_exp, mm_exp, mask_exp, dat_obs, theta_obs, mm_obs, mask_obs, p_mu, p_sigma, eta) {
-    .Call('_ManyData_postll_C', PACKAGE = 'ManyData', current_val, inCop, dat_exp, theta_exp, mm_exp, mask_exp, dat_obs, theta_obs, mm_obs, mask_obs, p_mu, p_sigma, eta)
+postll_C_all <- function(current_val, inCop, dat_exp, theta_exp, mm_exp, mask_exp, dat_obs, theta_obs, mm_obs, mask_obs, p_mu, p_sigma, eta) {
+    .Call('_ManyData_postll_C_all', PACKAGE = 'ManyData', current_val, inCop, dat_exp, theta_exp, mm_exp, mask_exp, dat_obs, theta_obs, mm_obs, mask_obs, p_mu, p_sigma, eta)
 }
 
 MCMCloop_C <- function(n_iter, init_val, sigma, inCop, dat_exp, theta_exp, mm_exp, mask_exp, dat_obs, theta_obs, mm_obs, mask_obs, p_mu, p_sigma, eta) {

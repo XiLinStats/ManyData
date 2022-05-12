@@ -140,8 +140,8 @@ run_MH_MCMC <- function(startval, iterations, dat_obs, dat_exp,
 
 
   # covariance matrix for proposal function
-  FI_exp <- ManyData:::ApproxFI_all(masks = msks_exp, theta = theta_exp, mm = mm_exp, dat = dat_exp, delta = 1e-4)
-  FI_obs <- ManyData:::ApproxFI_all(masks = msks_obs, theta = theta_obs, mm = mm_obs, dat = dat_obs, delta = 1e-4)
+  FI_exp <- ManyData:::ApproxFI_single(msks_exp, theta_exp, mm_exp, data_exp,  delta = 1e-4)
+  FI_obs <- ManyData:::ApproxFI_single(msks_obs, theta_obs, mm_obs, data_obs, delta = 1e-4)
 
   # if (eta > 0.1){
   #
@@ -151,7 +151,7 @@ run_MH_MCMC <- function(startval, iterations, dat_obs, dat_exp,
   #   FI_exp <- ApproxFI(masks = msks_exp, theta = theta_exp, mm = mm_exp, dat = dat_exp, delta = 1e-4)
   #   sigma <- 2 * solve(FI_exp+eta *FI_obs)
   # }
-  sigma <- 2 * solve(FI_exp + eta *FI_obs)
+  sigma <- 400* 1/(10*FI_exp+eta *FI_obs)
 
   # chain <- matrix(rep(0,iterations*2), ncol = 2)
   # chain[1,] <- startval
@@ -202,4 +202,97 @@ run_MH_MCMC <- function(startval, iterations, dat_obs, dat_exp,
 
 }
 
-
+# run_MH_MCMC <- function(startval, iterations, dat_obs, dat_exp,
+#                         msks_obs,theta_obs,
+#                         msks_exp,theta_exp,
+#                         p_mu, p_sig,eta){
+#
+#   # Prepare input for the observational study
+#   ## get param masks
+#   # forms2_obs <- causl:::tidy_formulas(forms_obs[-2], kwd = "cop")
+#   # full_form_obs <- causl:::merge_formulas(forms2_obs)
+#   # wh_obs <- full_form_obs$wh
+#   # # LHS <- lhs(forms2[-length(forms2)])
+#   # msks_obs <- masks(forms_obs[-2],family = list(1,1,1),wh_obs)
+#
+#   ## get model matrix
+#   mm_obs <- model.matrix(full_form_obs$formula, data = dat_obs)
+#
+#   # theta_obs <- causl:::theta(pars = pars_obs, formulas = forms_obs[-2], full_form_obs, kwd = "cop")
+#
+#   # Prepare input for the experimental study
+#   ## get param masks
+#   # forms2_exp <- causl:::tidy_formulas(forms_exp[-2], kwd = "cop")
+#   # full_form_exp <- causl:::merge_formulas(forms2_exp)
+#   # wh_exp <- full_form_exp$wh
+#   # # LHS <- lhs(forms2[-length(forms2)])
+#   # msks_exp <- masks(forms_exp[-2],family = list(1,1,1),wh_exp)
+#
+#   ## get model matrix
+#   mm_exp <- model.matrix(full_form_exp$formula, data = dat_exp)
+#
+#   # theta_exp <- causl:::theta(pars = pars_exp, formulas = forms_exp[-2], full_form_exp, kwd = "cop")
+#
+#
+#   # covariance matrix for proposal function
+#   FI_exp <- ManyData:::ApproxFI_all(masks = msks_exp, theta = theta_exp, mm = mm_exp, dat = dat_exp, delta = 1e-4)
+#   FI_obs <- ManyData:::ApproxFI_all(masks = msks_obs, theta = theta_obs, mm = mm_obs, dat = dat_obs, delta = 1e-4)
+#
+#   # if (eta > 0.1){
+#   #
+#   # sigma <- 2 * solve(eta *FI_obs)
+#   #
+#   # } else{
+#   #   FI_exp <- ApproxFI(masks = msks_exp, theta = theta_exp, mm = mm_exp, dat = dat_exp, delta = 1e-4)
+#   #   sigma <- 2 * solve(FI_exp+eta *FI_obs)
+#   # }
+#   sigma <- 2 * solve(FI_exp + eta *FI_obs)
+#
+#   # chain <- matrix(rep(0,iterations*2), ncol = 2)
+#   # chain[1,] <- startval
+#   #
+#   # for (i in 2:iterations) {
+#   #
+#   #   currentval = chain[i - 1,]
+#   #   Y = proposalfunction(currentval, sigma)
+#   #
+#   #   alpha = exp(posterior(Y, dat_obs = dat_obs, theta_obs = theta_obs, mm_obs = mm_obs, mask_obs = msks_obs,
+#   #                         dat_exp = dat_exp, theta_exp = theta_exp,mm_exp = mm_exp ,mask_exp = msks_exp,
+#   #                         eta)
+#   #               - posterior(currentval, dat_obs = dat_obs,theta_obs = theta_obs,  mm_obs = mm_obs, mask_obs = msks_obs,
+#   #                           dat_exp = dat_exp, theta_exp = theta_exp,mm_exp = mm_exp ,mask_exp = msks_exp,
+#   #                           eta))
+#   #
+#   #   if (runif(1) < alpha) {
+#   #     chain[i,] = Y
+#   #   }else{
+#   #     chain[i,] = currentval
+#   #   }
+#   #
+#   #   # printCount(i)
+#   # }
+#
+#   chain <- ManyData:::MCMCloop_C(n_iter = iterations,
+#
+#                                  init_val = startval,
+#                                  # init_val = c(0,0,0,0),
+#                                  sigma = sigma,
+#
+#                                  inCop = c(1,2),
+#                                  dat_exp = dat_exp[,c("Z","Y")],
+#                                  theta_exp  = theta_exp,
+#                                  mm_exp = mm_exp,
+#                                  mask_exp = msks_exp,
+#
+#                                  dat_obs = dat_obs[,c("Z","Y")],
+#                                  theta_obs  = theta_obs,
+#                                  mm_obs = mm_obs,
+#                                  mask_obs = msks_obs,
+#
+#                                  p_mu = p_mu,
+#                                  p_sigma = p_sig,
+#                                  eta = eta)
+#
+#   return(chain)
+#
+# }

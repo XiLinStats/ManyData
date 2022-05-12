@@ -59,7 +59,10 @@ arma::mat qnormC(const arma::mat& x) {
 
   for(auto& val : out){
     val = R::qnorm(val,0,1,true,false);
-   }
+    if (val >  1e+100){
+      val =  1e+100;
+    }
+  }
 
   return(out);
 
@@ -202,36 +205,188 @@ arma::vec llC(DataFrame dat,
 
 
 
+
+
+// double postll_C(
+//                 arma::rowvec current_val,
+//
+//                 const arma::vec inCop,
+//                 const DataFrame dat_exp,
+//                 const arma::vec theta_exp,
+//                 const arma::mat mm_exp,
+//                 const List mask_exp,
+//
+//                 const DataFrame dat_obs,
+//                 const arma::vec theta_obs,
+//                 const arma::mat mm_obs,
+//                 const List mask_obs,
+//
+//                 const arma::vec p_mu,
+//                 const arma::mat p_sigma,
+//
+//                 const double eta
+// ){
+//
+//   // initial values
+//   arma::vec theta_exp2 = theta_exp;
+//   arma::vec theta_obs2 = theta_obs;
+//   theta_exp2(2) = theta_obs2(2) = current_val(0);
+//   theta_exp2(3) = theta_obs2(3) = current_val(1);
+//   theta_exp2(4) = theta_obs2(4) = current_val(2);
+//   theta_exp2(5) = theta_obs2(5) = current_val(3);
+//
+//
+//   // fill beta matrix and phi vector with theta values
+//
+//   arma::mat beta_exp = mask_exp["beta_m"];
+//
+//   int c = 0;
+//
+//   for(auto& val : beta_exp){
+//     if (val == 1){
+//       val = theta_exp2[c];
+//       c += 1;
+//     }
+//
+//   }
+//
+//   arma::vec phi_exp = mask_exp["phi_m"];
+//
+//   for(auto& val : phi_exp){
+//     if (val == 1){
+//       val = theta_exp2[c];
+//       c += 1;
+//     }
+//
+//   }
+//
+//   arma::mat beta_obs = mask_obs["beta_m"];
+//
+//   int k = 0;
+//
+//   for(auto& val : beta_obs){
+//     if (val == 1){
+//       val = theta_obs2[k];
+//       k += 1;
+//     }
+//
+//   }
+//
+//   arma::vec phi_obs = mask_obs["phi_m"];
+//
+//   for(auto& val : phi_obs){
+//     if (val == 1){
+//       val = theta_obs2[k];
+//       k += 1;
+//     }
+// //
+//   }
+//
+//   double post = sum(llC(dat_exp,mm_exp,beta_exp, phi_exp,inCop)) + eta * sum(llC(dat_obs, mm_obs,beta_obs, phi_obs,inCop)) + arma::sum(dmvnorm(current_val, p_mu, p_sigma, true));
+//
+//   // const arma::vec p_mu = {0,0};
+//   // const arma::mat p_sigma = {{2,0},{0,2}};
+//   // Rcout << "The value of p_sigma : " << p_sigma << "\n";
+//
+//
+//   return post;
+//
+//
+//
+// }
+
+
+
+
+
+// arma::mat MCMCloop_C(
+//     const arma::uword n_iter,
+//
+//     const arma::rowvec init_val,
+//     const arma::mat sigma,
+//
+//     const arma::vec inCop,
+//     const DataFrame dat_exp,
+//     arma::vec theta_exp,
+//     const arma::mat mm_exp,
+//     const List mask_exp,
+//
+//     const DataFrame dat_obs,
+//     arma::vec theta_obs,
+//     const arma::mat mm_obs,
+//     const List mask_obs,
+//
+//     const arma::vec p_mu,
+//     const arma::mat p_sigma,
+//
+//     const double eta
+// ){
+//
+//
+//   arma::mat chain(n_iter,4);
+//   arma::vec u(n_iter,arma::fill::randu);
+//
+//   chain.row(0) = init_val;
+//
+//   double prev_postll = postll_C(init_val,inCop,
+//                                  dat_exp,theta_exp,mm_exp,mask_exp,
+//                                  dat_obs,theta_obs,mm_obs,mask_obs,
+//                                  p_mu,p_sigma,eta);
+//
+//   arma::rowvec prev_var = init_val;
+//
+//   for (arma::uword i = 1 ; i < n_iter ; ++i){
+//     arma::rowvec new_var = rmvnorm(1, prev_var.t(),sigma);
+//
+//     double curr_postll = postll_C(new_var,inCop,
+//                                   dat_exp,theta_exp,mm_exp,mask_exp,
+//                                   dat_obs,theta_obs,mm_obs,mask_obs,
+//                                   p_mu,p_sigma,eta);
+//
+//     double alpha = exp( curr_postll - prev_postll);
+//
+//     if (u(i) < alpha){
+//       chain.row(i) = new_var;
+//       prev_var = new_var;
+//       prev_postll = curr_postll;
+//     }else{chain.row(i) = prev_var;
+//     }
+//
+//
+//
+//   }
+//
+//   return(chain);
+//
+//
+// }
+
+
 //' @export
 // [[Rcpp::export]]
-double postll_C(
-                arma::rowvec current_val,
+double postll_C_all(
+    arma::rowvec current_val,
 
-                const arma::vec inCop,
-                const DataFrame dat_exp,
-                const arma::vec theta_exp,
-                const arma::mat mm_exp,
-                const List mask_exp,
+    const arma::vec inCop,
+    const DataFrame dat_exp,
+    const arma::vec theta_exp,
+    const arma::mat mm_exp,
+    const List mask_exp,
 
-                const DataFrame dat_obs,
-                const arma::vec theta_obs,
-                const arma::mat mm_obs,
-                const List mask_obs,
+    const DataFrame dat_obs,
+    const arma::vec theta_obs,
+    const arma::mat mm_obs,
+    const List mask_obs,
 
-                const arma::vec p_mu,
-                const arma::mat p_sigma,
+    const arma::vec p_mu,
+    const arma::mat p_sigma,
 
-                const double eta
+    const double eta
 ){
 
   // initial values
-  arma::vec theta_exp2 = theta_exp;
-  arma::vec theta_obs2 = theta_obs;
-  theta_exp2(2) = theta_obs2(2) = current_val(0);
-  theta_exp2(3) = theta_obs2(3) = current_val(1);
-  theta_exp2(4) = theta_obs2(4) = current_val(2);
-  theta_exp2(5) = theta_obs2(5) = current_val(3);
-
+  arma::vec theta_exp2 = current_val.t();
+  arma::vec theta_obs2 = current_val.t();
 
   // fill beta matrix and phi vector with theta values
 
@@ -276,7 +431,7 @@ double postll_C(
       val = theta_obs2[k];
       k += 1;
     }
-//
+    //
   }
 
   double post = sum(llC(dat_exp,mm_exp,beta_exp, phi_exp,inCop)) + eta * sum(llC(dat_obs, mm_obs,beta_obs, phi_obs,inCop)) + arma::sum(dmvnorm(current_val, p_mu, p_sigma, true));
@@ -292,6 +447,92 @@ double postll_C(
 
 }
 
+//
+// //' @export
+// // [[Rcpp::export]]
+// double postll_C_all_test(
+//     arma::rowvec current_val,
+//
+//     const arma::vec inCop,
+//     const DataFrame dat_exp,
+//     const arma::vec theta_exp,
+//     const arma::mat mm_exp,
+//     const List mask_exp,
+//
+//     const DataFrame dat_obs,
+//     const arma::vec theta_obs,
+//     const arma::mat mm_obs,
+//     const List mask_obs,
+//
+//     const arma::vec p_mu,
+//     const arma::mat p_sigma,
+//
+//     const double eta
+// ){
+//
+//   // initial values
+//   arma::vec theta_exp2 = current_val.t();
+//   arma::vec theta_obs2 = current_val.t();
+//
+//   // fill beta matrix and phi vector with theta values
+//
+//   arma::mat beta_exp = mask_exp["beta_m"];
+//
+//   int c = 0;
+//
+//   for(auto& val : beta_exp){
+//     if (val == 1){
+//       val = theta_exp2[c];
+//       c += 1;
+//     }
+//
+//   }
+//
+//   arma::vec phi_exp = mask_exp["phi_m"];
+//
+//   for(auto& val : phi_exp){
+//     if (val == 1){
+//       val = theta_exp2[c];
+//       c += 1;
+//     }
+//
+//   }
+//
+//   arma::mat beta_obs = mask_obs["beta_m"];
+//
+//   int k = 0;
+//
+//   for(auto& val : beta_obs){
+//     if (val == 1){
+//       val = theta_obs2[k];
+//       k += 1;
+//     }
+//
+//   }
+//
+//   arma::vec phi_obs = mask_obs["phi_m"];
+//
+//   for(auto& val : phi_obs){
+//     if (val == 1){
+//       val = theta_obs2[k];
+//       k += 1;
+//     }
+//     //
+//   }
+//
+//   double post = sum(llC(dat_exp,mm_exp,beta_exp, phi_exp,inCop)) + eta * sum(llC(dat_obs, mm_obs,beta_obs, phi_obs,inCop));
+//
+//   // const arma::vec p_mu = {0,0};
+//   // const arma::mat p_sigma = {{2,0},{0,2}};
+//   // Rcout << "The value of p_sigma : " << p_sigma << "\n";
+//
+//
+//   return post;
+//
+//
+//
+// }
+
 
 
 
@@ -300,7 +541,7 @@ arma::mat MCMCloop_C(
     const arma::uword n_iter,
 
     const arma::rowvec init_val,
-    const arma::mat sigma,
+    const arma::vec  sigma,
 
     const arma::vec inCop,
     const DataFrame dat_exp,
@@ -320,36 +561,47 @@ arma::mat MCMCloop_C(
 ){
 
 
-  arma::mat chain(n_iter,4);
-  arma::vec u(n_iter,arma::fill::randu);
+  const arma::uword vec_length = theta_exp.n_elem;
+
+  arma::mat chain(n_iter,vec_length);
+  // arma::vec u(n_iter*vec_length,arma::fill::randu);
 
   chain.row(0) = init_val;
 
-  double prev_postll = postll_C(init_val,inCop,
-                                 dat_exp,theta_exp,mm_exp,mask_exp,
-                                 dat_obs,theta_obs,mm_obs,mask_obs,
-                                 p_mu,p_sigma,eta);
+  double prev_postll = postll_C_all(init_val,inCop,
+                                    dat_exp,theta_exp,mm_exp,mask_exp,
+                                    dat_obs,theta_obs,mm_obs,mask_obs,
+                                    p_mu,p_sigma,eta);
 
-  arma::rowvec prev_var = init_val;
+  arma::rowvec prev_theta = init_val;
+  arma::rowvec new_theta;
 
   for (arma::uword i = 1 ; i < n_iter ; ++i){
-    arma::rowvec new_var = rmvnorm(1, prev_var.t(),sigma);
 
-    double curr_postll = postll_C(new_var,inCop,
-                                  dat_exp,theta_exp,mm_exp,mask_exp,
-                                  dat_obs,theta_obs,mm_obs,mask_obs,
-                                  p_mu,p_sigma,eta);
 
-    double alpha = exp( curr_postll - prev_postll);
+    for (arma::uword j = 0 ; j < vec_length ; ++j){
 
-    if (u(i) < alpha){
-      chain.row(i) = new_var;
-      prev_var = new_var;
-      prev_postll = curr_postll;
-    }else{chain.row(i) = prev_var;
+      new_theta = prev_theta;
+
+      new_theta(j) = rnorm(1,prev_theta(j),sigma(j))(0);
+
+      double curr_postll = postll_C_all(new_theta,inCop,
+                                        dat_exp,theta_exp,mm_exp,mask_exp,
+                                        dat_obs,theta_obs,mm_obs,mask_obs,
+                                        p_mu,p_sigma,eta);
+
+      double alpha = exp( curr_postll - prev_postll);
+
+      double u = R::runif(0,1);
+
+      if (u < alpha){
+        prev_theta = new_theta;
+        prev_postll = curr_postll;
+      }
+
     }
 
-
+    chain.row(i) = prev_theta;
 
   }
 
@@ -357,6 +609,4 @@ arma::mat MCMCloop_C(
 
 
 }
-
-
 

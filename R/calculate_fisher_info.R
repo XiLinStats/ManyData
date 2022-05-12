@@ -83,3 +83,19 @@ Add_Delta <- function(theta, list, delta){
   theta[list] <- theta[list] + delta
   return(theta)
 }
+
+
+
+ApproxFI_single <-  function(masks, theta, mm, dat, delta = 1e-4){
+  out <- rep(NA,length(theta))
+  for (i in 1:length(theta)){
+
+    out[i] <- -(ll_sum(masks, Add_Delta(theta, i, 2*delta), mm ,dat) - 2 * ll_sum(masks, Add_Delta(theta, i, delta), mm ,dat) + ll_sum(masks, theta, mm ,dat))/(delta^2)
+
+
+  }
+
+  return(out)
+}
+
+
