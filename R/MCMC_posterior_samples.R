@@ -140,8 +140,8 @@ run_MH_MCMC <- function(startval, iterations, dat_obs, dat_exp,
 
 
   # covariance matrix for proposal function
-  FI_exp <- ManyData:::ApproxFI_single(msks_exp, theta_exp, mm_exp, data_exp,  delta = 1e-4)
-  FI_obs <- ManyData:::ApproxFI_single(msks_obs, theta_obs, mm_obs, data_obs, delta = 1e-4)
+  FI_exp <- ManyData:::ApproxFI_single(msks_exp, theta_exp, mm_exp, dat_exp,  delta = 1e-4)
+  FI_obs <- ManyData:::ApproxFI_single(msks_obs, theta_obs, mm_obs, dat_obs, delta = 1e-4)
 
   # if (eta > 0.1){
   #
