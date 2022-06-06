@@ -2,22 +2,6 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 #' @useDynLib ManyData
-NULL
-
-g <- function(n) {
-    .Call('_ManyData_g', PACKAGE = 'ManyData', n)
-}
-
-dGcop <- function(x, sigma, logd = FALSE) {
-    .Call('_ManyData_dGcop', PACKAGE = 'ManyData', x, sigma, logd)
-}
-
-#' @export
-dGcop_sig <- function(x, sigma, logd = FALSE) {
-    .Call('_ManyData_dGcop_sig', PACKAGE = 'ManyData', x, sigma, logd)
-}
-
-#' @useDynLib ManyData
 #' @import RcppArmadillo causl
 NULL
 
@@ -45,6 +29,22 @@ postll_C_all <- function(current_val, inCop, dat_exp, theta_exp, mm_exp, mask_ex
 
 MCMCloop_C <- function(n_iter, init_val, sigma, inCop, dat_exp, theta_exp, mm_exp, mask_exp, dat_obs, theta_obs, mm_obs, mask_obs, p_mu, p_sigma, eta) {
     .Call('_ManyData_MCMCloop_C', PACKAGE = 'ManyData', n_iter, init_val, sigma, inCop, dat_exp, theta_exp, mm_exp, mask_exp, dat_obs, theta_obs, mm_obs, mask_obs, p_mu, p_sigma, eta)
+}
+
+#' @useDynLib ManyData
+NULL
+
+g <- function(n) {
+    .Call('_ManyData_g', PACKAGE = 'ManyData', n)
+}
+
+dGcop <- function(x, sigma, logd = FALSE) {
+    .Call('_ManyData_dGcop', PACKAGE = 'ManyData', x, sigma, logd)
+}
+
+#' @export
+dGcop_sig <- function(x, sigma, logd = FALSE) {
+    .Call('_ManyData_dGcop_sig', PACKAGE = 'ManyData', x, sigma, logd)
 }
 
 #' @useDynLib ManyData

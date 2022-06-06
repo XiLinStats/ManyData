@@ -11,43 +11,6 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
-// g
-int g(int n);
-RcppExport SEXP _ManyData_g(SEXP nSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< int >::type n(nSEXP);
-    rcpp_result_gen = Rcpp::wrap(g(n));
-    return rcpp_result_gen;
-END_RCPP
-}
-// dGcop
-arma::vec dGcop(arma::mat const& x, arma::mat const& sigma, bool const logd);
-RcppExport SEXP _ManyData_dGcop(SEXP xSEXP, SEXP sigmaSEXP, SEXP logdSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::mat const& >::type x(xSEXP);
-    Rcpp::traits::input_parameter< arma::mat const& >::type sigma(sigmaSEXP);
-    Rcpp::traits::input_parameter< bool const >::type logd(logdSEXP);
-    rcpp_result_gen = Rcpp::wrap(dGcop(x, sigma, logd));
-    return rcpp_result_gen;
-END_RCPP
-}
-// dGcop_sig
-arma::vec dGcop_sig(arma::mat const& x, arma::cube const& sigma, bool const logd);
-RcppExport SEXP _ManyData_dGcop_sig(SEXP xSEXP, SEXP sigmaSEXP, SEXP logdSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::mat const& >::type x(xSEXP);
-    Rcpp::traits::input_parameter< arma::cube const& >::type sigma(sigmaSEXP);
-    Rcpp::traits::input_parameter< bool const >::type logd(logdSEXP);
-    rcpp_result_gen = Rcpp::wrap(dGcop_sig(x, sigma, logd));
-    return rcpp_result_gen;
-END_RCPP
-}
 // expitC
 NumericVector expitC(NumericVector x);
 RcppExport SEXP _ManyData_expitC(SEXP xSEXP) {
@@ -146,6 +109,43 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// g
+int g(int n);
+RcppExport SEXP _ManyData_g(SEXP nSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    rcpp_result_gen = Rcpp::wrap(g(n));
+    return rcpp_result_gen;
+END_RCPP
+}
+// dGcop
+arma::vec dGcop(arma::mat const& x, arma::mat const& sigma, bool const logd);
+RcppExport SEXP _ManyData_dGcop(SEXP xSEXP, SEXP sigmaSEXP, SEXP logdSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat const& >::type x(xSEXP);
+    Rcpp::traits::input_parameter< arma::mat const& >::type sigma(sigmaSEXP);
+    Rcpp::traits::input_parameter< bool const >::type logd(logdSEXP);
+    rcpp_result_gen = Rcpp::wrap(dGcop(x, sigma, logd));
+    return rcpp_result_gen;
+END_RCPP
+}
+// dGcop_sig
+arma::vec dGcop_sig(arma::mat const& x, arma::cube const& sigma, bool const logd);
+RcppExport SEXP _ManyData_dGcop_sig(SEXP xSEXP, SEXP sigmaSEXP, SEXP logdSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat const& >::type x(xSEXP);
+    Rcpp::traits::input_parameter< arma::cube const& >::type sigma(sigmaSEXP);
+    Rcpp::traits::input_parameter< bool const >::type logd(logdSEXP);
+    rcpp_result_gen = Rcpp::wrap(dGcop_sig(x, sigma, logd));
+    return rcpp_result_gen;
+END_RCPP
+}
 // univarDensC
 List univarDensC(NumericVector x, NumericVector eta, double phi, String link, int family, int df);
 RcppExport SEXP _ManyData_univarDensC(SEXP xSEXP, SEXP etaSEXP, SEXP phiSEXP, SEXP linkSEXP, SEXP familySEXP, SEXP dfSEXP) {
@@ -164,15 +164,15 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_ManyData_g", (DL_FUNC) &_ManyData_g, 1},
-    {"_ManyData_dGcop", (DL_FUNC) &_ManyData_dGcop, 3},
-    {"_ManyData_dGcop_sig", (DL_FUNC) &_ManyData_dGcop_sig, 3},
     {"_ManyData_expitC", (DL_FUNC) &_ManyData_expitC, 1},
     {"_ManyData_createSig", (DL_FUNC) &_ManyData_createSig, 3},
     {"_ManyData_qnormC", (DL_FUNC) &_ManyData_qnormC, 1},
     {"_ManyData_llC", (DL_FUNC) &_ManyData_llC, 5},
     {"_ManyData_postll_C_all", (DL_FUNC) &_ManyData_postll_C_all, 13},
     {"_ManyData_MCMCloop_C", (DL_FUNC) &_ManyData_MCMCloop_C, 15},
+    {"_ManyData_g", (DL_FUNC) &_ManyData_g, 1},
+    {"_ManyData_dGcop", (DL_FUNC) &_ManyData_dGcop, 3},
+    {"_ManyData_dGcop_sig", (DL_FUNC) &_ManyData_dGcop_sig, 3},
     {"_ManyData_univarDensC", (DL_FUNC) &_ManyData_univarDensC, 6},
     {NULL, NULL, 0}
 };
