@@ -113,7 +113,7 @@ run_MH_MCMC <- function(startval, iterations, dat_obs, dat_exp, eta){
   print(sigma)
   # print(sd)
 
-  chain <- matrix(rep(0,iterations*2), ncol = 2)
+  chain <- matrix(0, nrow = iterations, ncol = 2)
   chain[1,] <- startval
 
   for (i in 2:iterations) {
