@@ -16,7 +16,7 @@ ll_sum <- function(masks, theta, mm, dat){
   np <- sum(msks2$beta_m > 0)
   msks2$beta_m[masks$beta_m > 0] <- theta2[seq_len(np)]
   msks2$phi_m[masks$phi_m > 0] <- theta2[-seq_len(np)]
-  ll_i <- causl:::ll(dat = dat[,c(1,5)], mm = mm, beta = msks2$beta_m, phi = msks2$phi_m, inCop = c(1,2),
+  ll_i <- causl:::ll(dat = dat[,c("Z","Y")], mm = mm, beta = msks2$beta_m, phi = msks2$phi_m, inCop = c(1,2),
                      fam_cop = 1, family = list(1,1), link = NULL, par2 = NULL,
                      useC = TRUE)
   return(sum(ll_i))
@@ -51,25 +51,25 @@ ApproxFI <- function(masks, theta, mm, dat, delta = 1e-4){
 
 ApproxFI_all <- function(masks, theta, mm, dat, delta = 1e-4){
 
-  d_11<- (ll_sum(masks, Add_Delta(theta, 6, 2*delta), mm ,dat) - 2 * ll_sum(masks, Add_Delta(theta, 6, delta), mm ,dat) + ll_sum(masks, theta, mm ,dat))/(delta^2)
+  d_11<- (ll_sum(masks, Add_Delta(theta, 3, 2*delta), mm ,dat) - 2 * ll_sum(masks, Add_Delta(theta, 3, delta), mm ,dat) + ll_sum(masks, theta, mm ,dat))/(delta^2)
 
-  d_12 <- (ll_sum(masks, Add_Delta(theta, c(6,8), delta), mm ,dat) -  ll_sum(masks, Add_Delta(theta, c(6), delta), mm ,dat) - ll_sum(masks, Add_Delta(theta, c(8), delta), mm ,dat) +  ll_sum(masks, theta, mm ,dat))/(delta^2)
+  d_12 <- (ll_sum(masks, Add_Delta(theta, c(3,4), delta), mm ,dat) -  ll_sum(masks, Add_Delta(theta, c(3), delta), mm ,dat) - ll_sum(masks, Add_Delta(theta, c(4), delta), mm ,dat) +  ll_sum(masks, theta, mm ,dat))/(delta^2)
 
-  d_13 <- (ll_sum(masks, Add_Delta(theta, c(6,5), delta), mm ,dat) -  ll_sum(masks, Add_Delta(theta, c(6), delta), mm ,dat) - ll_sum(masks, Add_Delta(theta, c(5), delta), mm ,dat) +  ll_sum(masks, theta, mm ,dat))/(delta^2)
+  d_13 <- (ll_sum(masks, Add_Delta(theta, c(3,5), delta), mm ,dat) -  ll_sum(masks, Add_Delta(theta, c(3), delta), mm ,dat) - ll_sum(masks, Add_Delta(theta, c(5), delta), mm ,dat) +  ll_sum(masks, theta, mm ,dat))/(delta^2)
 
-  d_14 <- (ll_sum(masks, Add_Delta(theta, c(6,7), delta), mm ,dat) -  ll_sum(masks, Add_Delta(theta, c(6), delta), mm ,dat) - ll_sum(masks, Add_Delta(theta, c(7), delta), mm ,dat) +  ll_sum(masks, theta, mm ,dat))/(delta^2)
+  d_14 <- (ll_sum(masks, Add_Delta(theta, c(3,6), delta), mm ,dat) -  ll_sum(masks, Add_Delta(theta, c(3), delta), mm ,dat) - ll_sum(masks, Add_Delta(theta, c(6), delta), mm ,dat) +  ll_sum(masks, theta, mm ,dat))/(delta^2)
 
-  d_22 <- (ll_sum(masks, Add_Delta(theta, 8, 2*delta), mm ,dat) -  2*ll_sum(masks, Add_Delta(theta, c(8), delta) , mm ,dat) +  ll_sum(masks, theta, mm ,dat))/(delta^2)
+  d_22 <- (ll_sum(masks, Add_Delta(theta, 4, 2*delta), mm ,dat) -  2*ll_sum(masks, Add_Delta(theta, c(4), delta) , mm ,dat) +  ll_sum(masks, theta, mm ,dat))/(delta^2)
 
-  d_23 <- (ll_sum(masks, Add_Delta(theta, c(8,5), delta), mm ,dat) -  ll_sum(masks, Add_Delta(theta, c(8), delta), mm ,dat) - ll_sum(masks, Add_Delta(theta, c(5), delta), mm ,dat) +  ll_sum(masks, theta, mm ,dat))/(delta^2)
+  d_23 <- (ll_sum(masks, Add_Delta(theta, c(4,5), delta), mm ,dat) -  ll_sum(masks, Add_Delta(theta, c(4), delta), mm ,dat) - ll_sum(masks, Add_Delta(theta, c(5), delta), mm ,dat) +  ll_sum(masks, theta, mm ,dat))/(delta^2)
 
-  d_24 <- (ll_sum(masks, Add_Delta(theta, c(8,7), delta), mm ,dat) -  ll_sum(masks, Add_Delta(theta, c(8), delta), mm ,dat) - ll_sum(masks, Add_Delta(theta, c(7), delta), mm ,dat) +  ll_sum(masks, theta, mm ,dat))/(delta^2)
+  d_24 <- (ll_sum(masks, Add_Delta(theta, c(4,6), delta), mm ,dat) -  ll_sum(masks, Add_Delta(theta, c(4), delta), mm ,dat) - ll_sum(masks, Add_Delta(theta, c(6), delta), mm ,dat) +  ll_sum(masks, theta, mm ,dat))/(delta^2)
 
   d_33<- (ll_sum(masks, Add_Delta(theta, 5, 2*delta), mm ,dat) - 2 * ll_sum(masks, Add_Delta(theta, 5, delta), mm ,dat) + ll_sum(masks, theta, mm ,dat))/(delta^2)
 
-  d_34 <- (ll_sum(masks, Add_Delta(theta, c(5,7), delta), mm ,dat) -  ll_sum(masks, Add_Delta(theta, c(5), delta), mm ,dat) - ll_sum(masks, Add_Delta(theta, c(7), delta), mm ,dat) +  ll_sum(masks, theta, mm ,dat))/(delta^2)
+  d_34 <- (ll_sum(masks, Add_Delta(theta, c(5,6), delta), mm ,dat) -  ll_sum(masks, Add_Delta(theta, c(5), delta), mm ,dat) - ll_sum(masks, Add_Delta(theta, c(6), delta), mm ,dat) +  ll_sum(masks, theta, mm ,dat))/(delta^2)
 
-  d_44<- (ll_sum(masks, Add_Delta(theta, 7, 2*delta), mm ,dat) - 2 * ll_sum(masks, Add_Delta(theta, 7, delta), mm ,dat) + ll_sum(masks, theta, mm ,dat))/(delta^2)
+  d_44<- (ll_sum(masks, Add_Delta(theta, 6, 2*delta), mm ,dat) - 2 * ll_sum(masks, Add_Delta(theta, 6, delta), mm ,dat) + ll_sum(masks, theta, mm ,dat))/(delta^2)
 
   FI<- -matrix(data = c(d_11, d_12, d_13, d_14,
                         d_12, d_22, d_23, d_24,
@@ -83,3 +83,19 @@ Add_Delta <- function(theta, list, delta){
   theta[list] <- theta[list] + delta
   return(theta)
 }
+
+
+
+ApproxFI_single <-  function(masks, theta, mm, dat, delta = 1e-4){
+  out <- rep(NA,length(theta))
+  for (i in 1:length(theta)){
+
+    out[i] <- -(ll_sum(masks, Add_Delta(theta, i, 2*delta), mm ,dat) - 2 * ll_sum(masks, Add_Delta(theta, i, delta), mm ,dat) + ll_sum(masks, theta, mm ,dat))/(delta^2)
+
+
+  }
+
+  return(out)
+}
+
+
