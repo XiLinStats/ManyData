@@ -9,14 +9,14 @@
 #'
 #'
 
-ll_sum <- function(masks, theta, mm, dat){
+ll_sum <- function(masks, theta, mm, dat, vars){
 
-  theta2 <- copy(theta)
-  msks2 <- copy(masks)
-  np <- sum(msks2$beta_m > 0)
-  msks2$beta_m[masks$beta_m > 0] <- theta2[seq_len(np)]
-  msks2$phi_m[masks$phi_m > 0] <- theta2[-seq_len(np)]
-  ll_i <- causl:::ll(dat = dat[,c("Z","Y")], mm = mm, beta = msks2$beta_m, phi = msks2$phi_m, inCop = c(1,2),
+  # theta2 <- copy(theta)
+  # msks2 <- copy(masks)
+  np <- sum(masks$beta_m > 0)
+  masks$beta_m[masks$beta_m > 0] <- theta[seq_len(np)]
+  masks$phi_m[masks$phi_m > 0] <- theta[-seq_len(np)]
+  ll_i <- causl:::ll(dat = dat[,vars], mm = mm, beta = masks$beta_m, phi = masks$phi_m, inCop = seq_along(vars),
                      fam_cop = 1, family = list(1,1), link = NULL, par2 = NULL,
                      useC = TRUE)
   return(sum(ll_i))
