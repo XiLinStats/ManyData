@@ -161,3 +161,5 @@ compute_elpd <- function (eta, dat_e, dat_o, formulas, family, link,
 
   waic_eta
 }
+
+#
