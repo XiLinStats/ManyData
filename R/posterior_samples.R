@@ -217,33 +217,36 @@ run_MH_MCMC_Gibbs <- function(startval, mcmc_pars,
 #' @param msks masks for data, containing a beta matrix and a phi vector
 #' @param method the method to estimate ELPD which takes values of "WAIC" or "LOO". See details.
 #' @param inCop columns to include in the copula
+#' @param family families of variable distributions
+#' @param fam_cop copula family
 #' @return Results from loo::waic() or loo::loo()
 #' @examples elpd_sample <- calculate_elpd(samples,data_exp_b,mm$exp, msks = msks$exp,method = "WAIC")
 #' @export
 
 
-calculate_elpd <- function(samples,data,mm,msks,method = "WAIC",inCop){
+calculate_elpd <- function(samples,data,mm,msks,method = "WAIC",inCop, family, fam_cop){
   if (!(method %in% c("WAIC","LOO"))) {
     stop("Method has to be either WAIC LOO.")
   }
-
+  
   lst <- list()
-
+  
   for (i in 1:nrow(samples)) {
-
+    
     # theta2 <- copy(theta_exp)
     theta2 <- samples[i,]
     msks2 <- copy(msks)
     np <- sum(msks$beta_m > 0)
     msks2$beta_m[msks$beta_m > 0] <- theta2[seq_len(np)]
     msks2$phi_m[msks$phi_m > 0] <- theta2[-seq_len(np)]
-
-    ll_i <- ManyData:::llC(data,mm,msks2$beta_m, phi = msks2$phi_m,inCop = inCop)
+    
+    ll_i <- causl:::ll(data, mm, msks2$beta_m, phi = msks2$phi_m, 
+                       inCop = inCop,family = family, fam_cop = fam_cop)
     lst[[i]] <- as.vector(ll_i)
   }
-
+  
   mtrx <- do.call(rbind, lst)
-
+  
   if (method == "WAIC") {
     elpd <- loo::waic(mtrx)
   }
@@ -251,7 +254,7 @@ calculate_elpd <- function(samples,data,mm,msks,method = "WAIC",inCop){
     elpd <- loo::loo(mtrx)
   }
   return(elpd)
-
+  
 }
 
 
