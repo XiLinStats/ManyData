@@ -115,7 +115,9 @@ run_sims <- function(){
       for (eta in eta_list) {
         tryCatch(
           {samples <- approx_posterior(fit_exp = fit_exp,  fit_obs, eta = eta, n_sample = 2000)
-          elpd_sample <- calculate_elpd(samples,UNC[,vars,with = F],fit_exp$mm,msks,family = c(5,1), method = "WAIC",inCop = 1:2)
+          elpd_sample <- calculate_elpd(samples,UNC[,vars,with = F],fit_exp$mm,msks,family = c(5,1), method = "WAIC",inCop = 1:2,
+                                        family = unlist(family[-2][-length(family[-2])]),
+                                        fam_cop = family[length(family)])
 
           if (elpd < elpd_sample$elpd_waic) {
             elpd <- elpd_sample$elpd_waic
@@ -126,7 +128,7 @@ run_sims <- function(){
           }
           ,error = function(e) {cat("ERROR : p = ",p, "eta = ", eta, " skipped", "\n")})
       }
-      if (is.na(opt_samples)) {
+      if (sum(is.na(opt_samples)) >0 ){
         next
       }else{
         ATE_eta <- colMeans(opt_samples)[3]

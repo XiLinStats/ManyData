@@ -215,7 +215,9 @@ run_sims <- function(include.oberst = TRUE, include.rosenman = TRUE){
       for (eta in eta_list) {
         tryCatch(
           {samples <- approx_posterior(fit_exp = fit_exp,  fit_obs, eta = eta, n_sample = 2000)
-          elpd_sample <- calculate_elpd(samples,data_exp_b[,vars,with = F],mm$exp, msks = msks$exp,method = "WAIC", inCop = 1:3)
+          elpd_sample <- calculate_elpd(samples,data_exp_b[,vars,with = F],mm$exp, msks = msks$exp, method = "WAIC", inCop = 1:3,
+                                        family = unlist(family[-2][-length(family[-2])]),
+                                        fam_cop = family[length(family)])
 
           if (elpd < elpd_sample$elpd_waic) {
             elpd <- elpd_sample$elpd_waic
@@ -230,7 +232,7 @@ run_sims <- function(include.oberst = TRUE, include.rosenman = TRUE){
       # There is a chance that the combined covariance is not invertible, theorectically we can then switch back to MCMC but
       # in the simulation, we will just skip to the next bias value
 
-      if (is.na(opt_samples)) {
+      if (sum(is.na(opt_samples)) > 0) {
         next
       }else{
         # Get strata estimates from exp and obs data

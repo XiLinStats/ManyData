@@ -77,13 +77,13 @@ forms_obs <- forms_exp <- list(Z ~ C1,
                                ~ X*C1)
 forms_exp[[2]] <- list(X ~ 1, C1 ~ 1)
 
-pars_exp <- list(C1 = list(beta = 0,phi = 1),
-                 Z = list(beta = c(0.2, 0.6), phi = 1),
-                 X = list(beta = c(0.5,0.6,0.1,0.4)),
-                 Y = list(beta = c(0.6,0.8,0.2,0.3),phi = 1),
-                 cop = list(beta = matrix(c(1,2.5,0,0),nrow = 4)))
-pars_obs <- pars_exp
-pars_exp$X <- list(beta = 0)
+# pars_exp <- list(C1 = list(beta = 0,phi = 1),
+#                  Z = list(beta = c(0.2, 0.6), phi = 1),
+#                  X = list(beta = c(0.5,0.6,0.1,0.4)),
+#                  Y = list(beta = c(0.6,0.8,0.2,0.3),phi = 1),
+#                  cop = list(beta = matrix(c(1,2.5,0,0),nrow = 4)))
+# pars_obs <- pars_exp
+# pars_exp$X <- list(beta = 0)
 
 forms2 <- list(obs = causl:::tidy_formulas(forms_obs[-2], kwd = "cop"),
                exp = causl:::tidy_formulas(forms_exp[-2], kwd = "cop"))
@@ -95,38 +95,14 @@ full_form <- list(obs =  causl:::merge_formulas(forms2$obs),
 msks <- list(obs = ManyData:::masks(forms2$obs,family = family[-2],full_form$obs$wh),
              exp = ManyData:::masks(forms2$exp,family = family[-2],full_form$exp$wh))
 
-theta <- list(obs = causl:::theta(pars = pars_obs, formulas = forms2$obs, full_form$obs, kwd = "cop"),
-              exp = causl:::theta(pars = pars_exp, formulas = forms2$exp, full_form$exp, kwd = "cop"))
+# theta <- list(obs = causl:::get_theta(pars = pars_obs, formulas = forms2$obs, full_form$obs, kwd = "cop"),
+#               exp = causl:::get_theta(pars = pars_exp, formulas = forms2$exp, full_form$exp, kwd = "cop"))
 vars <- causl:::lhs(unlist(forms2$obs[1:2]))
 
 # Simulation code ---------------------------------------------------------
 
 
-# Number of iterations (different data)
-# n_boot <- 44*5
-n_boot <- 300
-
-# List of eta
-eta_list <- c(seq(0,0.2,0.04),seq(0.25,1,0.05))
-# eta_list <- c(0.2)
-
-bias_list <- c(0,0.5,0.75,1,1.25,1.5,1.75)
-
 set.seed(111)
-
-forms2 <- list(obs = causl:::tidy_formulas(forms_obs[-2], kwd = "cop"),
-               exp = causl:::tidy_formulas(forms_exp[-2], kwd = "cop"))
-
-full_form <- list(obs =  causl:::merge_formulas(forms2$obs),
-                  exp =  causl:::merge_formulas(forms2$exp))
-
-msks <- list(obs = ManyData:::masks(forms2$obs,family = family[-2],full_form$obs$wh),
-             exp = ManyData:::masks(forms2$exp,family = family[-2],full_form$exp$wh))
-
-theta <- list(obs = causl:::get_theta(pars = pars_obs, formulas = forms2$obs, full_form$obs, kwd = "cop"),
-              exp = causl:::get_theta(pars = pars_exp, formulas = forms2$exp, full_form$exp, kwd = "cop"))
-
-vars <- causl:::lhs(unlist(forms2$obs[1:2]))
 
 func <- function(){
 
@@ -178,11 +154,12 @@ func <- function(){
 
       tryCatch(
         {samples <- approx_posterior(fit_exp = fit_exp,  fit_obs, eta = eta, n_sample = 2000)
-        elpd_sample <- calculate_elpd(samples,data_exp_b[,vars,with = F],mm$exp, msks = msks$exp,method = "WAIC")
+        elpd_sample <- calculate_elpd(samples,data_exp_b[,vars,with = F],mm$exp, msks = msks$exp,method = "WAIC",
+                                      family = c(1,1), fam_cop = 1)
         }
         ,error = function(e) {cat("ERROR : Bias = ",bias, "eta = ", eta, " skipped", "\n")})
 
-      if (is.na(samples)) {
+      if (sum(is.na(samples)) > 0) {
         next
       }else{
 
@@ -228,7 +205,8 @@ saveRDS(results1,"data/results_v3_new.rds")
 
 # Plotting ----------------------------------------------------------------
 
-dat <- results1beta_1_true <- 0.8
+dat <- results1
+beta_1_true <- 0.8
 beta_3_true <- 0.3
 
 

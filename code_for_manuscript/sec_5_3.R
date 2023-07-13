@@ -38,17 +38,17 @@ create_strata <- function(K,data_exp_b, data_obs_b){
   table <- as.data.table(list(bin = q,
                               C1 = quantile(data_obs_b$C1,q)))
   table[bin == 1, C1 := Inf][,K := 1:.N]
-  
+
   # stratify data
   setkey(table,C1)
   setkey(data_exp_b,C1)
   setkey(data_obs_b,C1)
-  
+
   data_exp_b <- table[data_exp_b, roll = -Inf]
   data_obs_b <- table[data_obs_b, roll = -Inf]
-  
+
   return(list(data_exp_b = data_exp_b, data_obs_b = data_obs_b))
-  
+
 }
 
 # Params ------------------------------------------------------------------
@@ -95,8 +95,8 @@ full_form <- list(obs =  causl:::merge_formulas(forms2$obs),
 msks <- list(obs = ManyData:::masks(forms2$obs,family = family[-2],full_form$obs$wh),
              exp = ManyData:::masks(forms2$exp,family = family[-2],full_form$exp$wh))
 
-theta <- list(obs = causl:::theta(pars = pars_obs, formulas = forms2$obs, full_form$obs, kwd = "cop"),
-              exp = causl:::theta(pars = pars_exp, formulas = forms2$exp, full_form$exp, kwd = "cop"))
+theta <- list(obs = causl:::get_theta(pars = pars_obs, formulas = forms2$obs, full_form$obs, kwd = "cop"),
+              exp = causl:::get_theta(pars = pars_exp, formulas = forms2$exp, full_form$exp, kwd = "cop"))
 vars <- causl:::lhs(unlist(forms2$obs[1:2]))
 
 # Simulation code ---------------------------------------------------------
@@ -167,7 +167,10 @@ run_sims <- function(include.oberst = TRUE, include.rosenman = TRUE){
       for (eta in eta_list) {
         tryCatch(
           {samples <- approx_posterior(fit_exp = fit_exp,  fit_obs, eta = eta, n_sample = 2000)
-          elpd_sample <- calculate_elpd(samples,data_exp_b[,vars,with = F],mm$exp, msks = msks$exp,method = "WAIC")
+          elpd_sample <- calculate_elpd(samples,data_exp_b[,vars,with = F],mm$exp,
+                                        msks = msks$exp,method = "WAIC",
+                                        family = unlist(family[-2][-length(family[-2])]),
+                                        fam_cop = family[length(family)])
 
           if (elpd < elpd_sample$elpd_waic) {
             elpd <- elpd_sample$elpd_waic
@@ -182,7 +185,7 @@ run_sims <- function(include.oberst = TRUE, include.rosenman = TRUE){
       # There is a chance that the combined covariance is not invertible, theorectically we can then switch back to MCMC but
       # in the simulation, we will just skip to the next bias value
 
-      if (is.na(opt_samples)) {
+      if (sum(is.na(opt_samples)) > 0) {
         next
       }else{
         ATE_eta <- t(ATE_vec) %*% colMeans(opt_samples)[1:np]
@@ -191,7 +194,7 @@ run_sims <- function(include.oberst = TRUE, include.rosenman = TRUE){
         ps_o <- predict(glm(X ~ Z*C1, family = binomial, data = data_obs_b), type = "response")
         data_obs_b[, ':='(ps = ps_o,
                           weight = X/ps_o + (1 - X)/(1 - ps_o))]
-        
+
         ps_e <- predict(glm(X ~ Z*C1, family = binomial, data = data_exp_b), type = "response")
         data_exp_b[, ':='(ps = ps_e,
                           weight = X/ps_e + (1 - X)/(1 - ps_e))]
@@ -238,7 +241,7 @@ run_sims <- function(include.oberst = TRUE, include.rosenman = TRUE){
         lm_obs_t <- glm(Y ~  C1 + Z, family = gaussian, data = data_obs_b[X == 1])
         lm_obs_c <- glm(Y ~  C1 + Z, family = gaussian, data = data_obs_b[X == 0])
         w_coeff <- lm_obs_t$coefficients - lm_obs_c$coefficients
-    
+
         data_exp_b[, w_hat := mm3 %*% w_coeff]
 
         ps_e <- predict(glm(X ~ Z*C1, family = binomial, data = data_exp_b), type = "response")
@@ -349,7 +352,7 @@ summ[,':='(MSE_eta_ratio = MSE_eta/MSE_0,
 
 
 p1 <- ggplot(summ, aes(x = bias)) +
-  
+
   geom_line(aes(y = MSE_eta_ratio,colour = "Ours"), size = 1.3) +
   geom_line(aes(y = MSE_oberst_ratio ,colour = "Oberst et al. 2022"), size = 1.3) +
   geom_line(aes(y = MSE_gsar1_ratio,colour = "Green et al. 2005"),  size = 1.3) +
