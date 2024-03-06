@@ -1,3 +1,47 @@
+#' @export
+masks <- function(formulas, family = rep(1, nc), wh, LHS)
+{
+  if (is.list(family)) {
+    ncop <- length(family[length(family)])
+    family <- unlist(family)
+  }
+  else {
+    ncop <- 1
+    # family <- family[-length(family)]
+  }
+  formulas <- unlist(formulas)
+  nc <- length(formulas) + ncop - 1
+  beta_m <- matrix(0, nrow = max(unlist(wh)), ncol = nc)
+  phi_m <- numeric(length(family)-ncop)
+  for (i in seq_along(phi_m)) {
+    if (family[i] >= 1 && family[i] <= 3) {
+      phi_m[i] <- 1
+    }
+    beta_m[wh[[i]], i] <- 1
+  }
+
+  cp <- length(phi_m) + 1
+  for (i in seq_len(ncop)){
+    beta_m[wh[[cp]], cp + i - 1] <- 1
+  }
+  return(list(beta_m = beta_m, phi_m = phi_m))
+}
+
+#' @export
+ll_sum <- function(masks, theta, mm, dat){
+
+  # theta2 <- copy(theta)
+  msks2 <- copy(masks)
+  np <- sum(msks2$beta_m > 0)
+  msks2$beta_m[masks$beta_m > 0] <- theta[seq_len(np)]
+  msks2$phi_m[masks$phi_m > 0] <- theta[-seq_len(np)]
+  ll_i <- causl:::ll(dat = dat[,c(1,5)], mm = mm, beta = msks2$beta_m, phi = msks2$phi_m, inCop = c(1,2),
+                     fam_cop = 1, family = list(1,1), link = NULL, par2 = NULL,
+                     useC = TRUE)
+  return(sum(ll_i))
+}
+
+
 #' Calculate the sum of log-likelihood
 #'
 #' @param masks A masks object from masks().
@@ -9,14 +53,14 @@
 #'
 #'
 
-ll_sum <- function(masks, theta, mm, dat){
+ll_sum <- function(masks, theta, mm, dat, vars){
 
-  theta2 <- copy(theta)
-  msks2 <- copy(masks)
-  np <- sum(msks2$beta_m > 0)
-  msks2$beta_m[masks$beta_m > 0] <- theta2[seq_len(np)]
-  msks2$phi_m[masks$phi_m > 0] <- theta2[-seq_len(np)]
-  ll_i <- causl:::ll(dat = dat[,c("Z","Y")], mm = mm, beta = msks2$beta_m, phi = msks2$phi_m, inCop = c(1,2),
+  # theta2 <- copy(theta)
+  # msks2 <- copy(masks)
+  np <- sum(masks$beta_m > 0)
+  masks$beta_m[masks$beta_m > 0] <- theta[seq_len(np)]
+  masks$phi_m[masks$phi_m > 0] <- theta[-seq_len(np)]
+  ll_i <- causl:::ll(dat = dat[,vars], mm = mm, beta = masks$beta_m, phi = masks$phi_m, inCop = seq_along(vars),
                      fam_cop = 1, family = list(1,1), link = NULL, par2 = NULL,
                      useC = TRUE)
   return(sum(ll_i))

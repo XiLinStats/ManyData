@@ -1,21 +1,22 @@
 Package: ManyData
-Title: What the Package Does (One Line, Title Case)
-Version: 0.0.0.9000
+Title: Bayesian analysis of multiple datasets
+Version: 0.0.1.9001
 Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"),
-           comment = c(ORCID = "YOUR-ORCID-ID"))
+    c(person("Xi", "Lin", , "first.last@example.com", role = c("aut", "cre"),
+           comment = c(ORCID = "YOUR-ORCID-ID")),
+      person("Robin", "Evans", , "evans@stats.ox.ac.uk", role = c("aut")))
 Description: What the package does (one paragraph).
-License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
-    license
+License: use_mit_license()
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.2
-LinkingTo: 
-    Rcpp,
-    RcppArmadillo,
-    causl,
-    data.table
-    RcppClock,
-    RcppDist
-Imports: 
-    Rcpp
+Depends: R (>= 3.5.0)
+LinkingTo: Rcpp, RcppArmadillo, causl, data.table, RcppClock, RcppDist
+Imports: Rcpp
+Requires: loo
+NeedsCompilation: yes
+Packaged: 2022-08-19 12:26:16 UTC; evans
+Author: Xi Lin [aut, cre] (YOUR-ORCID-ID),
+  Robin Evans [aut]
+Maintainer: Xi Lin <xi.lin@stats.ox.ac.uk>
+
